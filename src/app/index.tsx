@@ -1,98 +1,244 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import {
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+export default function LoginScreen() {
+  const router = useRouter();
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+
+  function handleLogin() {
+    if (!email.trim() || !senha) {
+      Alert.alert(
+        'Atenção',
+        'Preencha o usuário e a senha.'
+      );
+      return;
+    }
+
+    if (
+      email.trim().toLowerCase() === 'aluno' &&
+      senha === '123456'
+    ) {
+      router.replace('/home');
+    } else {
+      Alert.alert(
+        'Login inválido',
+        'Usuário ou senha incorretos.'
+      );
+    }
   }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
+
+  // Função para limpar os campos de input
+  function handleLimpar() {
+    setEmail('');
+    setSenha('');
   }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
+
   return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
-
-export default function HomeScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
-
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
-
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
+    <KeyboardAvoidingView
+      style={styles.fundo}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.cartao}>
+          <Image
+            source={require('../../assets/login.png')}
+            style={styles.ilustracao}
+            resizeMode="cover"
           />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
 
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+          <View style={styles.conteudo}>
+            <Text style={styles.titulo}>Bem-vindo!</Text>
+
+            <Text style={styles.subtitulo}>
+              Acesse sua conta para gerenciar seus treinos sem filas.
+            </Text>
+
+            <View style={styles.campo}>
+              <Ionicons
+                name="person-outline"
+                size={18}
+                color="#FF6B00"
+              />
+
+              <TextInput
+                style={styles.input}
+                placeholder="Usuário ou E-mail"
+                placeholderTextColor="#888888"
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            </View>
+
+            <View style={styles.campo}>
+              <Ionicons
+                name="lock-closed-outline"
+                size={18}
+                color="#FF6B00"
+              />
+
+              <TextInput
+                style={styles.input}
+                placeholder="Senha"
+                placeholderTextColor="#888888"
+                value={senha}
+                onChangeText={setSenha}
+                secureTextEntry
+                autoCapitalize="none"
+              />
+            </View>
+
+            {/* BOTÃO ENTRAR */}
+            <TouchableOpacity
+              style={styles.botaoLogin}
+              onPress={handleLogin}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.textoBotao}>Entrar</Text>
+            </TouchableOpacity>
+
+            {/* BOTÃO LIMPAR CAMPOS */}
+            <TouchableOpacity
+              style={styles.botaoLimpar}
+              onPress={handleLimpar}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.textoBotaoLimpar}>Limpar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  fundo: {
+    flex: 1,
+    backgroundColor: '#121212',
+  },
+
   container: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
-    flexDirection: 'row',
+    padding: 16,
   },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
+
+  cartao: {
+    width: '100%',
+    maxWidth: 440,
+    alignSelf: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 22,
+    overflow: 'hidden',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
   },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
+
+  ilustracao: {
+    width: '100%',
+    height: 190,
+    backgroundColor: '#1E1E1E',
   },
-  title: {
+
+  conteudo: {
+    paddingHorizontal: 22,
+    paddingTop: 24,
+    paddingBottom: 28,
+  },
+
+  titulo: {
+    color: '#121212',
+    fontSize: 28,
+    fontWeight: '800',
     textAlign: 'center',
   },
-  code: {
-    textTransform: 'uppercase',
+
+  subtitulo: {
+    color: '#666666',
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 6,
+    marginBottom: 24,
+    lineHeight: 18,
   },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+
+  campo: {
+    height: 46,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 25,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 15,
+    marginBottom: 12,
+    backgroundColor: '#F8F9FA',
+  },
+
+  input: {
+    flex: 1,
+    marginLeft: 10,
+    color: '#121212',
+    fontSize: 13,
+    paddingVertical: 0,
+  },
+
+  botaoLogin: {
+    height: 46,
+    backgroundColor: '#FF6B00',
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 12,
+    marginBottom: 10,
+    elevation: 2,
+    shadowColor: '#FF6B00',
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 },
+  },
+
+  botaoLimpar: {
+    height: 46,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#121212',
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  textoBotao: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '800',
+  },
+
+  textoBotaoLimpar: {
+    color: '#121212',
+    fontSize: 14,
+    fontWeight: '800',
   },
 });
